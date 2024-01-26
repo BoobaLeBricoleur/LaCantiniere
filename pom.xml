@@ -1,0 +1,328 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.2.1</version>
+		<relativePath />
+	</parent>
+	<groupId>stone</groupId>
+	<version>2.1.9</version>
+	<artifactId>stone.lunchtime</artifactId>
+	<name>Lunch Time Project - Back - Spring Security - JWT</name>
+	<url>https://ferretrenaud.ovh/renaud91/stone.lunchtime</url>
+	<packaging>war</packaging>
+	<description>Lunch Time Project, back end only using standard SQL data base
+		(MySQL, PostgreSQL, H2). Let you order and handle meals and menu for
+		lunch time. This projet will use Spring Security and JWT.</description>
+	<developers>
+		<developer>
+			<id>rf</id>
+			<name>FERRET Renaud</name>
+			<email>admin@ferretrenaud.fr</email>
+			<url>https://ferretrenaud.ovh</url>
+			<roles>
+				<role>trainer</role>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>+2</timezone>
+		</developer>
+	</developers>
+	<licenses>
+		<license>
+			<name>Attribution Assurance License</name>
+			<url>https://opensource.org/licenses/AAL</url>
+			<comments>Attribution Assurance License</comments>
+		</license>
+	</licenses>
+	<properties>
+		<java.version>17</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<maven.test.skip>false</maven.test.skip>
+
+		<!-- https://springdoc.org/v2/ -->
+		<version.springdoc-openapi-starter-webmvc-ui>2.3.0</version.springdoc-openapi-starter-webmvc-ui>
+		<version.graphql-spring-boot-starter>15.1.0</version.graphql-spring-boot-starter>
+
+		<version.spring.security.jwt>1.1.1.RELEASE</version.spring.security.jwt>
+		<version.io.jsonwebtoken>0.12.3</version.io.jsonwebtoken>
+		<jacoco-maven-plugin-version>0.8.11</jacoco-maven-plugin-version>
+
+		<!-- Sonar -->
+		<sonar.scm.provider>git</sonar.scm.provider>
+		<sonar.links.scm>https://ferretrenaud.ovh/renaud91/stone.lunchtime.git</sonar.links.scm>
+		<sonar.links.issue>
+			https://ferretrenaud.ovh/renaud91/stone.lunchtime/issues</sonar.links.issue>
+		<sonar.links.ci>
+			https://ferretrenaud.ovh/renaud91/stone.lunchtime/pipelines</sonar.links.ci>
+		<sonar.token>squ_5624b08662f670e1a1ff78bd53d084ccc1740a80</sonar.token>
+		<sonar.host.url>https://ferretrenaud.com/sonar</sonar.host.url>
+		<sonar.projectVersion>${project.version}</sonar.projectVersion>
+		<!-- https://docs.sonarqube.org/pages/viewpage.action?pageId=1442166 -->
+		<sonar.java.source>${maven.compiler.source}</sonar.java.source>
+		<sonar.tests>src/test/java</sonar.tests>
+		<sonar.sourceEncoding>${project.build.sourceEncoding}</sonar.sourceEncoding>
+		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+		<sonar.exclusions>src/main/webapp/**</sonar.exclusions>
+		<sonar.coverage.exclusions>
+			src/main/java/stone/lunchtime/service/exception/**/*.java,src/main/java/stone/lunchtime/entity/**/*.java,src/main/java/stone/lunchtime/dto/**/*.java,src/main/java/stone/lunchtime/spring/**/*.java,src/main/java/stone/lunchtime/controller/rest/LoginRestController.java,src/main/java/stone/lunchtime/controller/rest/LogoutRestController.java,src/main/java/stone/lunchtime/SpringBootConfiguration.java,src/main/java/stone/lunchtime/controller/GlobalGqlControllerExceptionHandler.java,src/main/java/stone/lunchtime/utils/ValidationUtils.java,src/main/java/stone/lunchtime/controller/WelcomeRestController.java</sonar.coverage.exclusions>
+	</properties>
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<!-- Used for banner @@ -->
+		<resources>
+			<resource>
+				<directory>src/main/keystore</directory>
+				<filtering>false</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+
+		<plugins>
+			<!-- Pour Sonar and Co -->
+			<!--
+			https://mvnrepository.com/artifact/org.sonarsource.scanner.maven/sonar-maven-plugin -->
+			<!-- In order to avoid bug
+			morg.sonarsource.scanner.maven:sonar-maven-plugin:3.9.1.2184:sonar -->
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>3.10.0.2594</version>
+			</plugin>			
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>${project.artifactId}.SpringBootConfiguration</mainClass>
+					<layout>WAR</layout>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco-maven-plugin-version}</version>
+				<configuration>
+					<excludes>
+						<!-- deprecated because handled by Spring Security -->
+						<exclude>
+							src/main/java/stone/lunchtime/controller/rest/LoginRestController.java</exclude>
+						<exclude>
+							src/main/java/stone/lunchtime/controller/rest/LogoutRestController.java</exclude>
+						<exclude>
+							src/main/java/stone/lunchtime/SpringBootConfiguration.java</exclude>
+						<exclude>
+							src/main/java/stone/lunchtime/controller/GlobalGqlControllerExceptionHandler.java</exclude>
+						<exclude>
+							src/main/java/stone/lunchtime/utils/ValidationUtils.java</exclude>
+						<exclude>
+							src/main/java/stone/lunchtime/controller/WelcomeRestController.java</exclude>
+						<exclude>
+							src/main/java/stone/lunchtime/service/exception/**/*</exclude>
+						<exclude>src/main/java/stone/lunchtime/entity/**/*</exclude>
+						<exclude>src/main/java/stone/lunchtime/dto/**/*</exclude>
+						<exclude>src/main/java/stone/lunchtime/spring/**/*</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-report</id>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-check</id>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>COMPLEXITY</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.40</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi</artifactId>
+				<version>${version.springdoc-openapi-starter-webmvc-ui}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-impl</artifactId>
+				<version>${version.io.jsonwebtoken}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-jackson</artifactId>
+				<version>${version.io.jsonwebtoken}</version>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-jwt</artifactId>
+				<version>${version.spring.security.jwt}</version>
+			</dependency>
+			<!-- https://mvnrepository.com/artifact/org.antlr/antlr4-runtime -->
+			<dependency>
+				<groupId>org.antlr</groupId>
+				<artifactId>antlr4-runtime</artifactId>
+				<version>4.13.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<!-- Drivers -->
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<!-- must be on the classpath -->
+			<groupId>org.jacoco</groupId>
+			<artifactId>org.jacoco.agent</artifactId>
+			<classifier>runtime</classifier>
+			<version>${jacoco-maven-plugin-version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-graphql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.graphql</groupId>
+			<artifactId>spring-graphql-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<!-- Security -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-jwt</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+		</dependency>
+		<!-- Documentation -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-properties-migrator</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.graphql-java-kickstart</groupId>
+			<artifactId>graphql-spring-boot-starter</artifactId>
+			<version>${version.graphql-spring-boot-starter}</version>
+		</dependency>
+
+		<!-- Actuator -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+
+	</dependencies>
+</project>

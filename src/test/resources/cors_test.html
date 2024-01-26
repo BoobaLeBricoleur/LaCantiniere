@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Use this page for quick Cors Testing</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js"></script>
+    <script>        
+        $(function() {
+
+            $(document).on("click", "#go", function() {
+                let urlVal = "http://localhost:8080/stone.lunchtime/user/register";
+                let jqXHR = null;
+                let user = {
+                    address: "3 road of iron",
+                    wallet: 35.5,
+                    postalCode: "78140",
+                    email: "toto"+Math.floor(Math.random()*1000)+1+"@aol.com",
+                    password: "string",
+                    name: "Albert",
+                    firstname: "Smith",
+                    phone: "0147503190",
+                    town: "Versailles",
+                    sex: 0
+                };
+ 
+                jqXHR = $.ajax({                    
+                    url: urlVal,
+                    method: "put",
+                    contentType: "application/json;charset=UTF-8",
+                    crossDomain: true,
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    data: JSON.stringify(user)
+                });
+
+                jqXHR.done(function(data, status) {
+                    console.log("Done: ", status, data);
+                    $("#result").text("OK");
+                });
+
+                jqXHR.fail(function(data, textStatus, errorThrown) {
+                    console.log("Fail: textStatus=", textStatus, " - errorThrown=", errorThrown, " - jqXHR.status=", jqXHR.status);
+                    $("#result").text("FAILLED "+jqXHR.status);
+                });
+            });
+        });
+
+
+    </script>
+</head>
+
+<body>
+	<h1>Cors Testing ...</h1>
+    <button id="go">Go</button><br/>
+    <br/>
+    Result : <span id="result"></span>
+</body>
+
+
+</html>

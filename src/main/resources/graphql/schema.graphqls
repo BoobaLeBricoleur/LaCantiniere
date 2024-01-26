@@ -1,0 +1,303 @@
+# https://graphql.org/learn/schema/
+# https://www.graphql-java.com/tutorials/getting-started-with-spring-boot/
+
+type Query {
+	# ------------ Users ------------
+	userById(id: ID!): UserDtoOut
+	findAllUsers: [UserDtoOut]
+	checkPasswordUser(id: ID!, password: String!): UserDtoOut
+	findUserImage(id: ID!): ImageDtoOut
+	
+	# ------------ Orders ------------
+	computePrice(id: ID!, constraintId: Int): PriceDtoOut
+  	orderById(id: ID!): OrderDtoOut
+  	findAllOrders: [OrderDtoOut]
+	findAllOrdersForUser(userId: Int!, status: OrderStatus, beginDate: String, endDate: String): [OrderDtoOut]
+	findAllOrdersForUserToday(userId: Int!): [OrderDtoOut]
+	findAllOrdersBetweenDateInStatus(status: OrderStatus!, beginDate: String, endDate: String): [OrderDtoOut]
+	
+	# ------------ Menu ------------
+	menuById(id: ID!): MenuDtoOut
+	findAllMenus: [MenuDtoOut]
+	findAllMenusForWeek(weeknumber: Int!): [MenuDtoOut]
+	findAllMenusForWeekAndDay(weeknumber: Int!, daynumber: Int!): [MenuDtoOut]
+	findAllMenusForThisWeek: [MenuDtoOut]
+	findAllMenusForToday: [MenuDtoOut]
+	findMenuImage(id: ID!): ImageDtoOut
+
+	# ------------ Meal ------------
+	mealById(id: ID!): MealDtoOut
+	findAllMeals: [MealDtoOut]
+	findAllMealsForWeekAndCategory(weeknumber: Int!, catagory: Int): [MealDtoOut]
+	findAllMealsForWeekAndDayAndCategory(weeknumber: Int!, daynumber: Int!, catagory: Int): [MealDtoOut]
+	findAllForThisWeekAndCategory(catagory: Int): [MealDtoOut]
+	findAllMealsForTodayAndCategory(catagory: Int): [MealDtoOut]
+	findMealImage(id: ID!): ImageDtoOut
+	
+	# ------------ Ingredient ------------
+	ingredientById(id: ID!): IngredientDtoOut
+	findAllIngredients: [IngredientDtoOut]
+	findIngredientImage(id: ID!): ImageDtoOut
+	
+	# ------------ Constraint ------------
+	constraintById(id: ID!): ConstraintDtoOut
+	findAllConstraints: [ConstraintDtoOut]
+}
+
+type Mutation {
+	# ------------ Users ------------
+	registerUser(user: UserDtoIn!): UserDtoOut
+	updateUser(id: ID!, user: UserDtoIn!): UserDtoOut
+	deleteUserById(id: ID!): Boolean
+	deactivateUserById(id: ID!): UserDtoOut
+	activateUserById(id: ID!): UserDtoOut
+	creditUserById(id: ID!, amount: Float!): UserDtoOut
+	debitUserById(id: ID!, amount: Float!): UserDtoOut
+	updateUserImage(id: ID!, image: ImageDtoIn!): UserDtoOut
+	forgotPassword(email: String!): Boolean
+
+	# ------------ Orders ------------
+	addOrder(order: OrderDtoIn!): OrderDtoOut
+	payOrder(id: ID!, constraintId: Int): OrderDtoOut
+	cancelOrder(id: ID!): OrderDtoOut
+	updateOrder(id: ID!, order: OrderDtoIn!): OrderDtoOut
+	
+	# ------------ Menu ------------
+	addMenu(menu: MenuDtoIn!): MenuDtoOut
+	updateMenu(id: ID!, menu: MenuDtoIn!): MenuDtoOut
+	deleteMenu(id: ID!): Boolean
+	updateMenuImage(id: ID!, image: ImageDtoIn!): MenuDtoOut
+
+	# ------------ Meal ------------
+	addMeal(meal: MealDtoIn!): MealDtoOut
+	updateMeal(id: ID!, meal: MealDtoIn!): MealDtoOut
+	deleteMeal(id: ID!): Boolean
+	updateMealImage(id: ID!, image: ImageDtoIn!): MealDtoOut
+	
+	# ------------ Ingredient ------------
+	addIngredient(ingredient: IngredientDtoIn!): IngredientDtoOut
+	updateIngredient(id: ID!, ingredient: IngredientDtoIn!): IngredientDtoOut
+	deleteIngredient(id: ID!): Boolean
+	updateIngredientImage(id: ID!, image: ImageDtoIn!): IngredientDtoOut
+	
+	# ------------ Constraint ------------
+	addConstraint(constraint: ConstraintDtoIn!): ConstraintDtoOut
+	updateConstraint(id: ID!, constraint: ConstraintDtoIn!): ConstraintDtoOut
+	deleteConstraint(id: ID!): Boolean
+	
+}
+
+
+enum Sex {
+	MAN
+	WOMAN
+	OTHER
+}
+
+enum EntityStatus {
+	# 0
+	ENABLED
+	# 1
+	DISABLED
+	# 2
+	DELETED
+}
+
+enum MealCategory {
+	# 0
+	UNKNOWN
+	APPETIZERS
+	STARTERS
+	MAIN_DISHES
+	OTHERS
+	DESSERTS
+	BRUNCHS_AND_LUNCHES
+	SOUPS
+	SAUCES
+	DRINKS
+	SANDWICHES
+	# 11
+	SNACKS
+}
+
+enum OrderStatus {
+	# 0
+	CREATED
+	# 1
+	DELIVERED
+	# 2
+	CANCELED
+}
+
+type UserDtoOut {
+	id: ID!
+	address: String
+	wallet: Float!
+	postalCode: String
+	registrationDate: String
+	email: String!
+	isLunchLady: Boolean
+	name: String
+	firstname: String
+	phone: String
+	town: String
+	sex: Sex
+	status: EntityStatus!
+	imageId: Int
+}
+
+type OrderDtoOut {
+	id: ID!
+	creationDate: String
+	creationTime: String
+	quantity: [QuantityDtoOut]
+	status: OrderStatus!
+	user: UserDtoOut
+}
+
+type QuantityDtoOut {
+	id: ID!
+	quantity: Int
+	meal: MealDtoOut
+	menu: MenuDtoOut
+}
+
+type MealDtoOut {
+	id: ID!
+	category: MealCategory
+	ingredients: [IngredientDtoOut]
+	priceDF: Float
+	availableForWeeksAndDays: AvailableForWeeksAndDaysOut
+	description: String
+	label: String
+	status: EntityStatus!
+	imageId: Int
+}
+
+type MenuDtoOut {
+	id: ID!
+	meals: [MealDtoOut]
+	priceDF: Float
+	availableForWeeksAndDays: AvailableForWeeksAndDaysOut
+	description: String
+	label: String
+	status: EntityStatus!
+	imageId: Int
+}
+
+type IngredientDtoOut {
+	id: ID!
+	description: String
+	label: String
+	status: EntityStatus!
+	imageId: Int	
+}
+
+type AvailableForWeeksAndDaysOut {
+	values: [WeekAndDayOut]
+}
+
+type WeekAndDayOut {
+# Week number
+	week: Int
+# Day in the week. 1 is Monday and 7 is Sunday.
+	day: Int
+}
+
+type PriceDtoOut {
+	priceDF: Float
+	priceVAT: Float
+	rateVAT: Float
+}
+
+type ImageDtoOut {
+	id: ID!
+	imagePath: String
+	image64: String
+	isDefault: Boolean
+}
+
+type ConstraintDtoOut {
+	id: ID!
+	orderTimeLimit: String
+	maximumOrderPerDay: Int
+	rateVAT: Float
+}
+
+input UserDtoIn {
+# No values are mandatory since it can be used for update
+# Also, validation is handled by Jave server side code
+	address: String
+	password: String
+	wallet: Float
+	postalCode: String
+	email: String
+	isLunchLady: Boolean
+	name: String
+	firstname: String
+	phone: String
+	town: String
+	sex: Sex
+	image: ImageDtoIn
+}
+
+input ImageDtoIn {
+	imagePath: String!
+	image64: String!
+}
+
+input OrderDtoIn {
+	userId: Int!
+	constraintId: Int
+	quantity: [QuantityDtoIn]
+}
+
+input MenuDtoIn {
+	description: String
+	label: String
+	image: ImageDtoIn
+	priceDF: Float
+	availableForWeeksAndDays: AvailableForWeeksAndDaysIn
+	mealIds: [Int]
+}
+
+input MealDtoIn {
+	category: MealCategory
+	ingredientsId: [Int]
+	description: String
+	label: String
+	image: ImageDtoIn
+	priceDF: Float
+	availableForWeeksAndDays: AvailableForWeeksAndDaysIn
+}
+
+input QuantityDtoIn {
+	quantity: Int
+	mealId: Int
+	menuId: Int
+}
+
+# Same as type, but must be declared as input
+input AvailableForWeeksAndDaysIn {
+	values: [WeekAndDayIn]
+}
+
+# Same as type, but must be declared as input
+input WeekAndDayIn {
+# Week number
+	week: Int
+# Day in the week. 1 is Monday and 7 is Sunday.
+	day: Int
+}
+
+input ConstraintDtoIn {
+	orderTimeLimit: String
+	maximumOrderPerDay: Int
+	rateVAT: Float
+}
+
+input IngredientDtoIn {
+	description: String
+	label: String
+	image: ImageDtoIn
+}

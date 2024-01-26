@@ -1,0 +1,522 @@
+{
+	"info": {
+		"_postman_id": "ef09de57-2e4f-45da-9d4f-4110c94ba219",
+		"name": "Stone LunchTime - GraphQL API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6861003"
+	},
+	"item": [
+		{
+			"name": "Add Order",
+			"item": [
+				{
+					"name": "Login as lunchlady",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Authorization is present\", function () {",
+									"    pm.response.to.have.header(\"Authorization\");",
+									"});",
+									"// Add JWT for next request",
+									"pm.environment.set(\"currentAuthorization\", postman.getResponseHeader(\"Authorization\"));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Clear JWT old token",
+									"pm.environment.unset(\"currentAuthorization\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}:{{port}}/{{context}}/login?email=toto@gmail.com&password=bonjour",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{context}}",
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "toto@gmail.com"
+								},
+								{
+									"key": "password",
+									"value": "bonjour"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add an order (one menu)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Found id in return stream\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    // GQL, ID is not a number, but is a string",
+									"    pm.expect(jsonData.data.addOrder.id).to.be.a('string');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.test(\"currentAuthorization is present\", function () {",
+									"    pm.environment.get(\"currentAuthorization\") !== undefined && pm.environment.get(\"currentAuthorization\") !== null && pm.environment.get(\"currentAuthorization\") !== \"\";",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{currentAuthorization}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation addOrder($dtoOrder: OrderDtoIn!) {\r\n    addOrder(order: $dtoOrder) {\r\n        id,\r\n        creationDate,\r\n        status,\r\n        user {\r\n            id\r\n        }\r\n    }\r\n}",
+								"variables": "{\r\n    \"dtoOrder\" : {\r\n        \"userId\": 3,\r\n        \"constraintId\": -1,\r\n        \"quantity\": [\r\n            {\r\n                \"quantity\": 1,\r\n                \"mealId\": 1\r\n            }\r\n        ]\r\n    }\r\n}"
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}:{{port}}/{{context}}/graphql",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{context}}",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Update User",
+			"item": [
+				{
+					"name": "Login as lunchlady",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Authorization is present\", function () {",
+									"    pm.response.to.have.header(\"Authorization\");",
+									"});",
+									"// Add JWT for next request",
+									"pm.environment.set(\"currentAuthorization\", postman.getResponseHeader(\"Authorization\"));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Clear JWT old token",
+									"pm.environment.unset(\"currentAuthorization\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}:{{port}}/{{context}}/login?email=toto@gmail.com&password=bonjour",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{context}}",
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "toto@gmail.com"
+								},
+								{
+									"key": "password",
+									"value": "bonjour"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find user with id = 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Found user id 1\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.userById.email).to.eql(\"toto@gmail.com\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.test(\"currentAuthorization is present\", function () {",
+									"    pm.environment.get(\"currentAuthorization\") !== undefined && pm.environment.get(\"currentAuthorization\") !== null && pm.environment.get(\"currentAuthorization\") !== \"\";",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{currentAuthorization}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\r\n    userById(id:1) {\r\n        email,\r\n        name,\r\n        firstname,\r\n        isLunchLady\r\n    }\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}:{{port}}/{{context}}/graphql",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{context}}",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User with id = 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Found id in return stream\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    // In GQL ID are returned in ' '",
+									"    pm.expect(jsonData.data.updateUser.id).to.be.a('string');",
+									"});",
+									"pm.test(\"Values should be set\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.updateUser.address).to.eql(\"3 road of iron\");",
+									"    pm.expect(jsonData.data.updateUser.firstname).to.eql(\"Clara\"); // From H2 SGBD",
+									"    pm.expect(jsonData.data.updateUser.postalCode).to.eql(\"78140\");",
+									"    // Wallet will not change",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.test(\"currentAuthorization is present\", function () {",
+									"    pm.environment.get(\"currentAuthorization\") !== undefined && pm.environment.get(\"currentAuthorization\") !== null && pm.environment.get(\"currentAuthorization\") !== \"\";",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{currentAuthorization}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation updateUser($dtoUser: UserDtoIn!) {\r\n    updateUser(id : 2, user: $dtoUser) {\r\n        id,\r\n        address,\r\n        firstname,\r\n        postalCode,\r\n        \r\n    }\r\n}",
+								"variables": "{\r\n    \"dtoUser\" : {\r\n        \"address\": \"3 road of iron\",\r\n        \"postalCode\": \"78140\"\r\n    }\r\n}"
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{domain}}:{{port}}/{{context}}/graphql",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{context}}",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Delete User",
+			"item": [
+				{
+					"name": "Login as normal user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Authorization is present\", function () {",
+									"    pm.response.to.have.header(\"Authorization\");",
+									"});",
+									"// Add JWT for next request",
+									"pm.environment.set(\"currentAuthorization\", postman.getResponseHeader(\"Authorization\"));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Clear JWT old token",
+									"pm.environment.unset(\"currentAuthorization\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}:{{port}}/{{context}}/login?email=clara.marec@gmail.com&password=bonjour",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{context}}",
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "clara.marec@gmail.com"
+								},
+								{
+									"key": "password",
+									"value": "bonjour"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete the connected user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.test(\"currentAuthorization is present\", function () {",
+									"    pm.environment.get(\"currentAuthorization\") !== undefined && pm.environment.get(\"currentAuthorization\") !== null && pm.environment.get(\"currentAuthorization\") !== \"\";",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{currentAuthorization}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{domain}}:{{port}}/{{context}}/user/delete/2",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{domain}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{context}}",
+								"user",
+								"delete",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "currentAuthorization",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "context",
+			"value": "stone.lunchtime",
+			"type": "string"
+		},
+		{
+			"key": "protocol",
+			"value": "http",
+			"type": "string"
+		},
+		{
+			"key": "domain",
+			"value": "localhost",
+			"type": "string"
+		},
+		{
+			"key": "port",
+			"value": "8080",
+			"type": "string"
+		}
+	]
+}

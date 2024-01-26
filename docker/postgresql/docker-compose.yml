@@ -1,0 +1,122 @@
+#
+# Will start all docker constructions with Postgre
+#
+# Java img construction is controlled by Dockerfile
+# Spring boot options are given at line ~31
+#
+# Password and network ports are handled in .env file
+#
+version: "3.9"
+name: stone-lunchtime-for-postgres
+services:
+  # https://hub.docker.com/_/postgres
+  postgresqldbsl:
+    image: postgres:16.1
+    restart: unless-stopped
+    env_file: ./.env
+    container_name: postgresqldbsl
+    hostname: postgresqldbsl
+    environment:
+      - POSTGRES_USER=$DB_USER
+      - POSTGRES_PASSWORD=$DB_USER_PASSWORD
+      - POSTGRES_DB=$DB_DATABASE
+      # Very bad, for dev only
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    # Use ports if you want to connect to Data base from outside the container
+    ports:
+      - $DB_LOCAL_PORT:$DB_DOCKER_PORT
+    # No access from OUTSIDE the containers, use expose
+    # expose:
+    #  - $DB_DOCKER_PORT
+    
+    # Give access from OUTSIDE to the containers
+    # Use this instead if you want to connect to Data base
+    # ports:
+    #  - $DB_LOCAL_PORT:$DB_DOCKER_PORT
+    # We have two volumes
+    # one file=bind: the dump of the db. This should prevail docker to
+    #                mount a file 'as' a directory
+    # one volume=volume: where to keep datas. It is a directory
+    volumes:
+      - type: bind
+        source: ./dump/insert.sql
+        target: /docker-entrypoint-initdb.d/insert.sql
+        read_only: true
+      - type: volume
+        source: vol_postgre_sql_db_sl
+        target: /var/lib/postgresql/data
+
+  # https://hub.docker.com/r/dpage/pgadmin4
+  # https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html
+  pgadminsl:
+    image: dpage/pgadmin4:latest
+    container_name: pgadminsl
+    hostname: pgadminsl
+    restart: unless-stopped
+    env_file: ./.env
+    depends_on:
+      - postgresqldbsl
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=$DB_USER_EMAIL
+      - PGADMIN_DEFAULT_PASSWORD=$DB_USER_PASSWORD
+    ports:
+      - $PGA_LOCAL_PORT:$PGA_DOCKER_PORT
+
+  # Application Java
+  javaapppostgressl:
+    container_name: javaapppostgressl
+    hostname: javaapppostgressl    
+    depends_on:
+      - postgresqldbsl
+    build: 
+      context: ../../../stone.lunchtime
+      dockerfile: Dockerfile
+      args:
+        - USE_MAVEN_PROFILE=${USE_MAVEN_PROFILE}
+    restart: unless-stopped
+    env_file: ./.env
+
+    ports:
+      - $SPRING_LOCAL_PORT:$SPRING_DOCKER_PORT
+      - $SPRING_LOCAL_PORT_SSL:$SPRING_DOCKER_PORT_SSL
+
+    environment:
+      # Sets with "spring.profiles.active" : "${USE_MAVEN_PROFILE},unsecured,ssl,actuator" if you want
+      - SPRING_APPLICATION_JSON={"spring.profiles.active":"${USE_MAVEN_PROFILE},actuator","spring.datasource.url":"jdbc:postgresql://postgresqldbsl:$DB_DOCKER_PORT/$DB_DATABASE?ssl=false&sslmode=disable&TimeZone=Europe/Paris","spring.datasource.username":"$DB_USER","spring.datasource.password":"$DB_USER_PASSWORD","spring.server.port":"$SPRING_DOCKER_PORT"}
+      
+    volumes:
+      - ../.m2:/root/.m2
+    stdin_open: true
+    tty: true
+
+  # Prometheus for monitoring
+  # https://hub.docker.com/r/prom/prometheus
+  prometheuspostgresl:
+    image: prom/prometheus:latest
+    container_name: prometheuspostgresl
+    hostname: prometheuspostgresl
+    env_file: ./.env
+    restart: unless-stopped  
+    depends_on:
+      - javaapppostgressl
+    ports:
+      - $PROM_LOCAL_PORT:$PROM_DOCKER_PORT
+            
+    volumes:
+      - type: bind
+        source: ./prometheus.yml
+        target: /etc/prometheus/prometheus.yml
+        read_only: true
+      - type: volume
+        source: vol_pt_data_postgre_db_sl
+        target: /etc/prometheus/data
+
+volumes:
+  vol_postgre_sql_db_sl:
+  vol_pt_data_postgre_db_sl:
+
+#
+# Run all  : docker-compose up --build
+# Stop all : docker-compose down
+# Stop all and delte all img : docker-compose down --rmi all
+#

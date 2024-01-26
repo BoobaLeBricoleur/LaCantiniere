@@ -1,0 +1,58 @@
+Lunch Time with Rest and GraphQL History
+admin@ferretrenaud.fr
+
+Note : The GrapQL API may not work at 100%, please report bug if found.
+
+** 2.1.9 - 28 12 00:00:00 CEST 2023 - 10 Release
+-> admin (update) Update log to Slf4J in order to simplify use of Spring Native GraalVM
+-> admin (update) Refactor some classes
+
+** 2.1.8 - 22 12 00:00:00 CEST 2023 - 9 Release
+-> admin (update) Migration to Spring Boot 3.2.1
+
+** 2.1.7 - 21 12 00:00:00 CEST 2023 - 8 Release
+-> admin (update) Actuator is now operationnal and can be used to monitor Rest Api
+-> admin (update) Dockerfile and Docker-Compose were completed with Prometheus for Actuator GUI
+-> admin (update) A small sample of tests was made with JMeter in order to stress the application
+-> admin (update) Log4J2 config file and POM dependency
+
+** 2.1.6 - 14 12 00:00:00 CEST 2023 - 7 Release
+-> admin (update) Migration to Spring Boot 3.2.0
+-> admin (update) Dockerfile and Docker-Compose version were updated (8.2 for MySQL and 16.1 for Postgres)
+-> admin (update) Jwt framework version
+
+** 2.1.5 - 11 10 00:00:00 CEST 2023 - 6 Release
+-> admin (update) Migration to Spring Boot 3.1.5
+-> admin (removed) Removed Maven profiles
+-> admin (update) Dockerfile and Docker-Compose in order to handle ports of DBs (in case)
+-> admin (update) Charset for MySQL dump files
+-> admin (update) @Transactionnal in service is moved to interface instead of class
+
+** 2.1.4 - 11 10 00:00:00 CEST 2023 - 6 Release
+-> admin (fix) Changed Dockerfile with 17-jdk-alpine to latest because it was causing problem with Mac Book M1 (using Apple Chipset).
+
+** 2.1.3 - 01 09 00:00:00 CEST 2023 - 5 Release
+-> admin (update) Migration to Spring Boot 3.1.3
+
+** 2.1.2 - 26 06 00:00:00 CEST 2023 - 4 Release
+-> admin (update) Docker updates in speed and behavior
+-> admin (update) Migration to Spring Boot 3.1.1
+-> admin (update) Delete will now return a boolean instead of a dto
+-> admin (added) Spring main profile will be lead by Maven profile
+-> admin (added) Used resource Maveb plugin for variables dynamics 
+-> admin (added) GQL Unit tests (first part)
+
+** 2.1.1 - 31 05 00:00:00 CEST 2023 - 3 Release
+-> admin (update) Migration to Spring Boot 3.1.0 (so Spring Security two)
+-> admin (update) Added IssuedAt in JWT
+-> admin (update) Changed the ObjectMapper injection in order to gain speed (a lot of speed)
+-> admin (added) It is now possible to use SSL, with self signed certificate for HTTP
+-> admin (added) UT on graphQL controller (also IT in postman)
+-> admin (added) Validation will follow Jakarta Validation annotations
+
+** 2.1.0 - 17 03 00:00:00 CEST 2023 - 2 Release
+-> admin (update) Merge with main branch in order to be able to use rest and Gql at the same time
+-> admin (update) Migration to Spring Boot 3.0.4
+
+** 2.0.0 - 09 08 00:00:00 CEST 2022 - 1 Release
+-> admin (update) First release of this project that is a merge between 'old' Rest and 'new' Gql API
